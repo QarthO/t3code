@@ -151,7 +151,12 @@ describe("KeybindingsSettings.logic", () => {
     ] satisfies ResolvedKeybindingsConfig);
 
     expect(options).toEqual(
-      expect.arrayContaining(["chat.new", "rightPanel.toggleMaximized", "script.setup-db.run"]),
+      expect.arrayContaining([
+        "chat.new",
+        "chat.newMatchingContext",
+        "rightPanel.toggleMaximized",
+        "script.setup-db.run",
+      ]),
     );
   });
 

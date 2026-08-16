@@ -7,6 +7,16 @@ interface ThreadContextLike {
   projectId: ProjectId;
 }
 
+interface ThreadWorkspaceContextLike extends ThreadContextLike {
+  branch: string | null;
+  worktreePath: string | null;
+}
+
+interface DraftWorkspaceContextLike extends ThreadWorkspaceContextLike {
+  envMode: DraftThreadEnvMode;
+  startFromOrigin: boolean;
+}
+
 interface NewThreadHandler {
   (
     projectRef: ScopedProjectRef,
@@ -21,8 +31,8 @@ interface NewThreadHandler {
 }
 
 export interface ChatThreadActionContext {
-  readonly activeDraftThread: ThreadContextLike | null;
-  readonly activeThread: ThreadContextLike | undefined;
+  readonly activeDraftThread: DraftWorkspaceContextLike | null;
+  readonly activeThread: ThreadWorkspaceContextLike | undefined;
   readonly defaultProjectRef: ScopedProjectRef | null;
   readonly handleNewThread: NewThreadHandler;
 }
@@ -61,6 +71,44 @@ export async function startNewThreadFromContext(
   const projectRef = resolveThreadActionProjectRef(context);
   if (!projectRef) {
     return false;
+  }
+
+  await context.handleNewThread(projectRef);
+  return true;
+}
+
+/**
+ * Starts a clean conversation in the viewed thread's workspace. Model,
+ * runtime, and interaction settings are carried by useNewThreadHandler from
+ * the current route; this helper supplies the workspace fields that normal
+ * new-thread entry points intentionally leave to configured defaults.
+ */
+export async function startNewThreadMatchingContext(
+  context: ChatThreadActionContext,
+): Promise<boolean> {
+  const projectRef = resolveThreadActionProjectRef(context);
+  if (!projectRef) {
+    return false;
+  }
+
+  if (context.activeThread) {
+    await context.handleNewThread(projectRef, {
+      branch: context.activeThread.branch,
+      worktreePath: context.activeThread.worktreePath,
+      envMode: context.activeThread.worktreePath ? "worktree" : "local",
+      startFromOrigin: false,
+    });
+    return true;
+  }
+
+  if (context.activeDraftThread) {
+    await context.handleNewThread(projectRef, {
+      branch: context.activeDraftThread.branch,
+      worktreePath: context.activeDraftThread.worktreePath,
+      envMode: context.activeDraftThread.envMode,
+      startFromOrigin: context.activeDraftThread.startFromOrigin,
+    });
+    return true;
   }
 
   await context.handleNewThread(projectRef);

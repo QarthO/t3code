@@ -64,8 +64,11 @@ Note that `chat.new` and `chat.newLocal` both create a thread through the same p
 inherits the project you were in, along with model and mode selections. Branch, worktree, and
 environment mode always come from your configured defaults, not from the thread you were looking
 at. To keep a worktree, use the explicit "new thread in this worktree" action in the branch
-toolbar. The only difference between the two commands: with the current sidebar and more than one
-project, `chat.new` opens a project chooser first.
+toolbar, or use `chat.newMatchingContext` (`mod+alt+n` by default). That command starts a clean
+conversation with the viewed thread's model/options, modes, branch, and worktree. With no viewed
+thread, it falls back to the configured workspace defaults. The only difference between
+`chat.new` and `chat.newLocal`: with the current sidebar and more than one project, `chat.new`
+opens a project chooser first.
 
 ## `when` Conditions
 

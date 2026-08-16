@@ -203,6 +203,17 @@ it.layer(NodeServices.layer)("keybindings", (it) => {
       assert.equal(defaultsByCommand.get("projectSearch.toggle"), "mod+shift+f");
       assert.equal(defaultsByCommand.get("sidebar.toggle"), "mod+b");
       assert.equal(defaultsByCommand.get("rightPanel.toggle"), "mod+alt+b");
+      assert.equal(defaultsByCommand.get("chat.newMatchingContext"), "mod+alt+n");
+      assert.deepEqual(
+        Keybindings.DEFAULT_KEYBINDINGS.filter((binding) => binding.key === "mod+alt+n"),
+        [
+          {
+            key: "mod+alt+n",
+            command: "chat.newMatchingContext",
+            when: "!terminalFocus",
+          },
+        ],
+      );
       assert.isFalse(defaultsByCommand.has("rightPanel.toggleMaximized"));
       assert.equal(defaultsByCommand.get("terminal.splitVertical"), "mod+shift+d");
       assert.equal(defaultsByCommand.get("modelPicker.jump.1"), "mod+1");

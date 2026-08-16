@@ -75,7 +75,11 @@ import { useAtomQueryRunner } from "../state/use-atom-query-runner";
 import { useEnvironments, usePrimaryEnvironmentId } from "../state/environments";
 import { useProjects, useThreadShells } from "../state/entities";
 import { useThreadSearch } from "../state/queries";
-import { resolveThreadActionProjectRef, startNewThreadFromContext } from "../lib/chatThreadActions";
+import {
+  resolveThreadActionProjectRef,
+  startNewThreadFromContext,
+  startNewThreadMatchingContext,
+} from "../lib/chatThreadActions";
 import {
   appendBrowsePathSegment,
   ensureBrowseDirectoryPath,
@@ -1467,6 +1471,25 @@ function OpenCommandPaletteDialog(props: {
           });
         },
       });
+
+      if (activeThread || activeDraftThread) {
+        actionItems.push({
+          kind: "action",
+          value: "action:new-thread-matching-context",
+          searchTerms: ["new thread", "same context", "same worktree", "same branch", "same model"],
+          title: "New thread matching current context",
+          icon: <SquarePenIcon className={ITEM_ICON_CLASS} />,
+          shortcutCommand: "chat.newMatchingContext",
+          run: async () => {
+            await startNewThreadMatchingContext({
+              activeDraftThread,
+              activeThread: activeThread ?? undefined,
+              defaultProjectRef,
+              handleNewThread,
+            });
+          },
+        });
+      }
     }
 
     actionItems.push({
