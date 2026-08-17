@@ -592,8 +592,13 @@ function OpenCommandPaletteDialog(props: {
   const { environments } = useEnvironments();
   const desktopLocalBootstraps = useDesktopLocalBootstraps();
   const primaryEnvironmentId = usePrimaryEnvironmentId();
-  const { activeDraftThread, activeThread, defaultProjectRef, handleNewThread } =
-    useHandleNewThread();
+  const {
+    activeDraftThread,
+    activeThread,
+    activeThreadWorkspace,
+    defaultProjectRef,
+    handleNewThread,
+  } = useHandleNewThread();
   const projects = useProjects();
   const projectOrder = useUiStateStore((store) => store.projectOrder);
   const threads = useThreadShells();
@@ -1484,6 +1489,7 @@ function OpenCommandPaletteDialog(props: {
             await startNewThreadMatchingContext({
               activeDraftThread,
               activeThread: activeThread ?? undefined,
+              activeThreadWorkspace,
               defaultProjectRef,
               handleNewThread,
             });

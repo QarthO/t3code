@@ -1,6 +1,7 @@
 import { useAtomValue } from "@effect/atom-react";
 import {
   scopedProjectKey,
+  scopedThreadKey,
   scopeProjectRef,
   scopeThreadRef,
 } from "@t3tools/client-runtime/environment";
@@ -30,6 +31,7 @@ import { primaryServerSettingsAtom } from "../state/server";
 import { resolveThreadRouteTarget } from "../threadRoutes";
 import { legacyProjectCwdPreferenceKey, useUiStateStore } from "../uiStateStore";
 import { useClientSettings } from "./useSettings";
+import { useThreadWorkspaceSelectionStore } from "../threadWorkspaceSelectionStore";
 
 interface NewThreadWorkspaceOptions {
   branch?: string | null;
@@ -439,6 +441,9 @@ export function useHandleNewThread() {
   });
   const routeThreadRef = routeTarget?.kind === "server" ? routeTarget.threadRef : null;
   const activeThread = useThread(routeThreadRef);
+  const activeThreadWorkspace = useThreadWorkspaceSelectionStore((store) =>
+    routeThreadRef ? (store.byThreadKey[scopedThreadKey(routeThreadRef)] ?? null) : null,
+  );
   const getDraftThread = useComposerDraftStore((store) => store.getDraftThread);
   const activeDraftThread = useComposerDraftStore(() =>
     routeTarget
@@ -464,6 +469,7 @@ export function useHandleNewThread() {
   return {
     activeDraftThread,
     activeThread,
+    activeThreadWorkspace,
     defaultProjectRef: orderedProjects[0]
       ? scopeProjectRef(orderedProjects[0].environmentId, orderedProjects[0].id)
       : null,

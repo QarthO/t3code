@@ -138,6 +138,36 @@ describe("chatThreadActions", () => {
     });
   });
 
+  it("uses the workspace currently selected for an empty server thread", async () => {
+    const handleNewThread = vi.fn<ChatThreadActionContext["handleNewThread"]>(async () => {});
+
+    const didStart = await startNewThreadMatchingContext(
+      createContext({
+        activeThread: {
+          environmentId: ENVIRONMENT_ID,
+          projectId: PROJECT_ID,
+          branch: "main",
+          worktreePath: null,
+        },
+        activeThreadWorkspace: {
+          branch: "origin/release",
+          worktreePath: null,
+          envMode: "worktree",
+          startFromOrigin: true,
+        },
+        handleNewThread,
+      }),
+    );
+
+    expect(didStart).toBe(true);
+    expect(handleNewThread).toHaveBeenCalledWith(scopeProjectRef(ENVIRONMENT_ID, PROJECT_ID), {
+      branch: "origin/release",
+      worktreePath: null,
+      envMode: "worktree",
+      startFromOrigin: true,
+    });
+  });
+
   it("preserves a draft's selected workspace context", async () => {
     const handleNewThread = vi.fn<ChatThreadActionContext["handleNewThread"]>(async () => {});
 

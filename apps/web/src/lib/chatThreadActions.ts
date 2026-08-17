@@ -17,6 +17,8 @@ interface DraftWorkspaceContextLike extends ThreadWorkspaceContextLike {
   startFromOrigin: boolean;
 }
 
+type ThreadWorkspaceSelectionLike = Omit<DraftWorkspaceContextLike, "environmentId" | "projectId">;
+
 interface NewThreadHandler {
   (
     projectRef: ScopedProjectRef,
@@ -33,6 +35,7 @@ interface NewThreadHandler {
 export interface ChatThreadActionContext {
   readonly activeDraftThread: DraftWorkspaceContextLike | null;
   readonly activeThread: ThreadWorkspaceContextLike | undefined;
+  readonly activeThreadWorkspace?: ThreadWorkspaceSelectionLike | null;
   readonly defaultProjectRef: ScopedProjectRef | null;
   readonly handleNewThread: NewThreadHandler;
 }
@@ -92,11 +95,17 @@ export async function startNewThreadMatchingContext(
   }
 
   if (context.activeThread) {
-    await context.handleNewThread(projectRef, {
+    const workspace = context.activeThreadWorkspace ?? {
       branch: context.activeThread.branch,
       worktreePath: context.activeThread.worktreePath,
       envMode: context.activeThread.worktreePath ? "worktree" : "local",
       startFromOrigin: false,
+    };
+    await context.handleNewThread(projectRef, {
+      branch: workspace.branch,
+      worktreePath: workspace.worktreePath,
+      envMode: workspace.envMode,
+      startFromOrigin: workspace.startFromOrigin,
     });
     return true;
   }

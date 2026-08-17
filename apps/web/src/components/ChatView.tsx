@@ -182,6 +182,7 @@ import {
 import { newDraftId, newMessageId, newThreadId } from "~/lib/utils";
 import { useBrowserHistoryStore } from "~/browserHistoryStore";
 import { registerFaviconProjectForThread } from "~/browserFaviconStore";
+import { useThreadWorkspaceSelectionStore } from "~/threadWorkspaceSelectionStore";
 import { getProviderModelCapabilities, resolveSelectableProvider } from "../providerModels";
 import { NO_PROVIDER_MODEL_SELECTION } from "../providerInstances";
 import {
@@ -1394,6 +1395,12 @@ function ChatViewContent(props: ChatViewProps) {
     pendingServerThreadStartFromOriginByThreadId,
     setPendingServerThreadStartFromOriginByThreadId,
   ] = useState<Record<string, boolean>>({});
+  const setThreadWorkspaceSelection = useThreadWorkspaceSelectionStore(
+    (store) => store.setSelection,
+  );
+  const clearThreadWorkspaceSelection = useThreadWorkspaceSelectionStore(
+    (store) => store.clearSelection,
+  );
   const [lastInvokedScriptByProjectId, setLastInvokedScriptByProjectId] = useLocalStorage(
     LAST_INVOKED_SCRIPT_BY_PROJECT_KEY,
     {},
@@ -4106,6 +4113,25 @@ function ChatViewContent(props: ChatViewProps) {
       ? (pendingServerThreadStartFromOriginByThreadId[activeThread?.id ?? ""] ??
         primaryServerSettings.newWorktreesStartFromOrigin)
       : false;
+  useLayoutEffect(() => {
+    if (!canOverrideServerThreadEnvMode) return;
+    setThreadWorkspaceSelection(routeThreadRef, {
+      branch: activeThreadBranch,
+      worktreePath: activeWorktreePath,
+      envMode,
+      startFromOrigin,
+    });
+    return () => clearThreadWorkspaceSelection(routeThreadRef);
+  }, [
+    activeThreadBranch,
+    activeWorktreePath,
+    canOverrideServerThreadEnvMode,
+    clearThreadWorkspaceSelection,
+    envMode,
+    routeThreadRef,
+    setThreadWorkspaceSelection,
+    startFromOrigin,
+  ]);
   const sendEnvMode = resolveSendEnvMode({
     requestedEnvMode: envMode,
     isGitRepo,
